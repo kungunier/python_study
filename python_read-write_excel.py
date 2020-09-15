@@ -33,6 +33,100 @@ print(max_row)
 max_column = sheet.max_column
 print(max_column)
 
-# 
+# 遍历所有行的数据
+# sheet.rows为生成器, 里面是每一行的数据，每一行又由一个tuple包裹
+for row in sheet.rows:
+    for cell in row:
+        print(cell.value)
+
+# 遍历所有列的数据
+# sheet.columns类似，不过里面是每个tuple是每一列的单元格
+for column in sheet.columns:
+    for cell in column:
+        print(cell.value)
+
+# 获取某一行的数据
+rowList = list(sheet.rows)
+for cell in rowList[1]:
+    print(cell.value)
+
+# 获取某一列的数据
+columnList = list(sheet.columns)
+for cell in columnList[3]:
+    print(cell.value)
+
+# 获得任意区间的单元格
+maxRow = sheet.max_row
+maxColumn = sheet.max_column
+for i in range(sheet.min_row,maxRow+1):
+    for j in range(sheet.min_column,maxColumn+1):
+        print(sheet.cell(row=i,column=j).value)
+
+# 根据下标获取任意区间内的单元格
+for rowCell in sheet['B1':'F2']:
+    for cell in rowCell:
+        print(cell.value)
+
+# 根据列的数字返回字母
+print(openpyxl.utils.get_column_letter(3))
+# 根据字母返回列的数字
+print(openpyxl.utils.column_index_from_string('D'))
+
+# 写入数据到Excel表
+# 创建一个未保存的工作表
+wb = openpyxl.Workbook()
+print(wb.sheetnames)    # 默认的sheet名字为Sheet
+# 直接赋值可以修改sheet的名称
+wb['Sheet'].title = '写入数据'
+print(wb.sheetnames)
+wb.create_sheet('写入数据2',index=1)
+print(wb.sheetnames)
+sheet = wb['写入数据']
+# 删除某个工作表
+wb.remove(sheet)
+del wb['写入数据2']
+print(wb.sheetnames)
+
+# 写入单元格
+sheet = wb.create_sheet('写入数据3')
+sheet['A1'] = '测试写入数据到A1单元格'
+print(sheet['A1'].value)
+# 写入公式
+sheet['B1'] = '=AVERAGE(B2:B8)'
+# 读取的时候需要加上data_only=True读到返回的是数字,不加参数返回公式本身
+print(sheet['B2'].value)
+print(sheet.cell(row=2,column=2).value)
+
+# 一次添加多行数据 append()函数，从第一行空白行 一行一行的写入
+# 添加一行
+row = [1,2,3,4,5,6]
+sheet.append(row)
+for cell in list(sheet.rows)[2]:
+    print(cell.value)
+
+# 添加多行
+rows = [
+['Number', 'data1', 'data2'],
+[2, 40, 30],
+[3, 40, 25],
+[4, 50, 30],
+[5, 30, 10],
+[6, 25, 5],
+[7, 50, 10],
+]
+for row in rows:
+    sheet.append(row)
+for cell in list(sheet.rows)[4]:
+    print(cell.value)
 
 
+# 按列写入 zip()函数 最后的元组个数是由原来每个参数（可迭代对象）的最短长度决定的
+columnsList = list(zip(*rows))
+print(columnsList)
+for column in columnsList:
+    sheet.append(column)
+for cell in list(sheet.rows)[7]:
+    print(cell.value)
+
+# 保存文件
+wb.save('File/写入数据.xlsx')
